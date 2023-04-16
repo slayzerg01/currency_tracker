@@ -3,62 +3,27 @@
 
 
 {% block content %}
-<script type="text/javascript">
-    const trackAddOperation = () => {
-
-      var formData = new FormData();
-
-      // Получаем значения из формы
-      var value1 = document.getElementById('currency1').value;
-      var value2 = document.getElementById('currency2').value;
-      // Добавляем пары ключ-значение в объект FormData
-      formData.append('first_currency', value1);
-      formData.append('second_currency', value2);
-
-      // Создаем объект XMLHttpRequest
-      var xhr = new XMLHttpRequest();
-      var body = 'first_currency=' + encodeURIComponent(value1) +'&second_currency=' + encodeURIComponent(value2);
-
-      // Устанавливаем метод и URL для запроса
-      xhr.open('POST', 'http://127.0.0.1:8000/currency/add_track/?first_currency=' + encodeURIComponent(value1) +'&second_currency=' + encodeURIComponent(value2), true);
-
-      // Отправляем объект FormData в теле запроса
-      xhr.send();
-    }
-    
-    
-</script>
 
     <div class="container currency-add d-flex flex-column justify-content-center align-items-center">
       <h2 class="currency-add__title align-self-center mb-4">Добавление валют</h2>
-      <form class="currency-add__form d-flex justify-content-around align-items-center mb-4">
+      <form onsubmit="submitForm(event)" class="currency-add__form d-flex justify-content-around align-items-center mb-4">
         <input type="text" name="currency1" id="currency1" placeholder="Валюта-1" class="current-add__text">
         <input type="text" name="currency2" id="currency2" placeholder="Валюта-2" class="current-add__text">
-        <input type="submit" onclick="trackAddOperation()" value="Отправить" class="btn btn-warning">
+        <input type="submit"  value="Отправить" class="btn btn-warning">
+        <!-- onclick="trackAddOperation()" -->
       </form>
     </div>
 
     <div class="card d-flex justify-content-center align-items-center mt-3 card-custom" style="border: none;">
-        {% for result in results %}
+        {% for result, dif in results %}
           <div class="card col-4 text-dark bg-warning mb-3" >
           <div class="card-header align-self-center">{{ result.first_currency }}-{{ result.second_currency }}</div>
             <div class="card-body d-flex flex-column align-items-center">
               <h5 class="card-title ">{{ result.value }}</h5>
-              <p class="card-text">Несколько быстрых примеров содержимого карточки.</p>
+              <p class="card-text">Разница в {{ dif[0] }} с прошлого обновления {{ dif[1] }}</p>
               <a href="#" class="btn btn-primary card-btn-custom">Go somewhere</a>
             </div>
           </div>
         {% endfor %}
     </div>
-<!--  <div class="card d-flex justify-content-center align-items-center mt-3" style="border: none;">-->
-<!--    {% for result in results %}-->
-<!--          <div class="card col-4 text-dark bg-warning mb-3" >-->
-<!--          <div class="card-header">{{ result.first_currency }}-{{ result.second_currency }}</div>-->
-<!--            <div class="card-body">-->
-<!--              <h5 class="card-title ">{{ result.value }}</h5>-->
-<!--              <p class="card-text">Несколько быстрых примеров содержимого карточки.</p>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--    {% endfor %}-->
-<!--    </div>-->
 {% endblock %}

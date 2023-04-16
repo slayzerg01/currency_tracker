@@ -49,14 +49,16 @@ async def get_exchange_rates(
 @router.post("/add_track/")
 async def add_track(first_currency: str, second_currency: str, session: AsyncSession = Depends(get_async_session)):
     try:
-        stmt = insert(tracked).values(first_currency=first_currency,
-                                      second_currency=second_currency,
+        stmt = insert(tracked).values(first_currency=first_currency.strip(),
+                                      second_currency=second_currency.strip(),
                                       date_at=datetime.utcnow())
         await session.execute(stmt)
         await session.commit()
         print("added")
-        return {"status": "success"}
+        return {"status": "success",
+                "details": f"Added {first_currency}-{second_currency}"}
     except IntegrityError:
+        print("not")
         await session.rollback()
         return {"error": "Данная запись уже существует в базе"}
 
