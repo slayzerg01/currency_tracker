@@ -1,5 +1,5 @@
 from typing import List
-
+from fastapi.exceptions import HTTPException
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.database import get_async_session
@@ -18,7 +18,7 @@ router = APIRouter(
 )
 
 
-@router.get("/value")
+@router.get("/value/")
 async def get_exchange_rates(
         first_currency: str,
         second_currency: str,
@@ -46,21 +46,21 @@ async def get_exchange_rates(
         return {"error": "Не удалось подключиться к сети"}
 
 
-@router.post("/add_track/")
-async def add_track(first_currency: str, second_currency: str, session: AsyncSession = Depends(get_async_session)):
+@router.post("/add_track/{first_currency}-{second_currency}")
+async def add_track(currencies=Depends(Tracked), session: AsyncSession = Depends(get_async_session)):
     try:
-        stmt = insert(tracked).values(first_currency=first_currency.strip(),
-                                      second_currency=second_currency.strip(),
+        stmt = insert(tracked).values(first_currency=currencies.first_currency.value,
+                                      second_currency=currencies.second_currency.value,
                                       date_at=datetime.utcnow())
         await session.execute(stmt)
         await session.commit()
-        print("added")
         return {"status": "success",
-                "details": f"Added {first_currency}-{second_currency}"}
+                "details": f"{currencies.first_currency.value}-{currencies.second_currency.value} entry added"}
     except IntegrityError:
-        print("not")
         await session.rollback()
-        return {"error": "Данная запись уже существует в базе"}
+        raise HTTPException(status_code=500, detail="This entry already exists in the database")
+    except ConnectionRefusedError:
+        raise HTTPException(status_code=500, detail="Error connecting to database")
 
 
 @router.get("/get_tracked", response_model=List[Tracked])

@@ -9,9 +9,23 @@ from src.pages.router import router as router_pages
 from src.operations.router import router as router_operation
 from fastapi.staticfiles import StaticFiles
 from src.currency.router import router as router_currency
+from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI(
     title="Trading App"
+)
+
+origins = [
+    "http://localhost",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "OPTIONS", "DELETE", "PATCH"],
+    allow_headers=["Content-Type", "Set-Cookie", "Access-Control-Allow-Credentials", "Authorization"],
 )
 
 app.mount("/static", StaticFiles(directory="src/static"), name="static")
